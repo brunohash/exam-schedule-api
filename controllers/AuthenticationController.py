@@ -24,22 +24,22 @@ class AuthenticationController:
             jwt_secret = os.getenv("JWT_SECRET")
             token = jwt.encode(token_payload, jwt_secret, algorithm="HS256")
 
-            return {"status": "success", "message": "Login successful", "token": token}
+            return {"status": "success", "code": 201, "message": "Login successful", "token": token}
         
         else:
-            return {"status": "error", "message": "Invalid credentials"}
+            return {"status": "error", "code": 401, "message": "Invalid credentials"}
     
     def register(self, data):
         required_fields = ['name', 'email', 'age', 'phoneNumber', 'address', 'password']
 
         if any(data.get(field) == '' for field in required_fields):
-            response = {"status": "error", "message": "All fields are required"}
+            response = {"status": "error", "code": 400, "message": "All fields are required"}
         else:
             insert = AuthenticationRepository.AuthenticationRepository().store(data)
 
             if insert.get('status') == 'success':
-                response = {"status": "success", "message": "Register successful"}
+                response = {"status": "success", "code": 201, "message": "Register successful"}
             else:
-                response = {"status": "error", "message": insert.get('message')}
+                response = {"status": "error", "code": 400, "message": insert.get('message')}
 
         return response

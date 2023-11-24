@@ -1,16 +1,6 @@
-import mysql.connector
-import os
+from Repositories.BaseRepository import BaseRepository
+class FeedRepository(BaseRepository):
 
-class FeedRepository:
+    def store(self, data):
 
-    def __init__(self):
-
-        self.cnx = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
-            port=os.getenv("DB_PORT")
-        )
-
-        self.cursor = self.cnx.cursor()
+        

@@ -1,5 +1,5 @@
-import controllers.AuthenticationController
-import middleware.UserMiddleware as UserMiddleware
+import Controllers.AuthenticationController
+import Middleware.UserMiddleware as UserMiddleware
 import json
 
 from dotenv import load_dotenv
@@ -15,8 +15,6 @@ class Routes:
 
         type_user = middleware.get('type_id')
 
-        print(type_user)
-
         match path:
             case '/users/show':
 
@@ -27,7 +25,7 @@ class Routes:
                 email = json_data.get('email', '')
                 password = json_data.get('password', '')
 
-                auth =  controllers.AuthenticationController().login(email, password)
+                auth =  Controllers.AuthenticationController().login(email, password)
                 request_handler.send_response(200)
                 request_handler.send_header('Content-Type', 'application/json')
                 request_handler.end_headers()
@@ -42,7 +40,7 @@ class Routes:
                 email = json_data.get('email', '')
                 password = json_data.get('password', '')
 
-                auth =  controllers.AuthenticationController.AuthenticationController().login(email, password)
+                auth =  Controllers.AuthenticationController.AuthenticationController().login(email, password)
                 request_handler.send_response(200)
                 request_handler.send_header('Content-Type', 'application/json')
                 request_handler.end_headers()
@@ -58,11 +56,9 @@ class Routes:
                 json_data['type_user'] = type_user
                 json_data['type'] = json_data.get('type', '')
 
-                print(json_data)
-
-                register = controllers.AuthenticationController.AuthenticationController().register(json_data)
+                register = Controllers.AuthenticationController.AuthenticationController().register(json_data)
                 
-                request_handler.send_response(200)
+                request_handler.send_response(register.get('code'))
                 request_handler.send_header('Content-Type', 'application/json')
                 request_handler.end_headers()
                 request_handler.wfile.write(json.dumps(register).encode('utf-8'))

@@ -1,9 +1,6 @@
 import jwt
 import os
 
-from dotenv import load_dotenv
-load_dotenv()
-
 class UserMiddleware():
     def check_user_token(self, token):
         try:

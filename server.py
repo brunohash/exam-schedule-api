@@ -1,12 +1,10 @@
 # api_controller.py
 from http.server import BaseHTTPRequestHandler
-
 import routes
-
 
 class APIController(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.routes = routes.Routes()
+        self.routes = routes.Routes(self)
         super().__init__(*args, **kwargs)
 
     def do_POST(self):

@@ -1,20 +1,7 @@
-import mysql.connector
-import os
 import hashlib
 
-class AuthenticationRepository:
-
-    def __init__(self):
-
-        self.cnx = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
-            port=os.getenv("DB_PORT")
-        )
-
-        self.cursor = self.cnx.cursor()
+from Repositories.BaseRepository import BaseRepository
+class AuthenticationRepository(BaseRepository):
 
     def auth(self, email, input_password):
         query = "SELECT id, name, email, type_id, password FROM users WHERE email = %s"
@@ -76,5 +63,5 @@ class AuthenticationRepository:
             else:
                 return {"status": "error", "message": "Register failed"}
             
-        except mysql.connector.Error as err:
-            return {"status": "error", "message": err.msg}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
