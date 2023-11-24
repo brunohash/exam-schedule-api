@@ -1,169 +1,116 @@
-import Controllers.AuthenticationController
-import Controllers.ScheduleController
-import Controllers.ExamsController
-import Middleware.UserMiddleware as UserMiddleware
-import json
+from http.server import BaseHTTPRequestHandler
+from urllib.parse import urlparse
+import re
 
-from dotenv import load_dotenv
-load_dotenv()
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        get_routes = {
+            r"/schedule/(\d+)/find": self.handle_schedule_find,
+            r"/exams/(\d+)/find": self.handle_exams_find,
+            r"/exams/(\d+)/types/find": self.handle_exams_types_find,
+            r"/exams/types": self.handle_types_all
+        }
+        
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path
 
-class Routes:
+        for route, handler in get_routes.items():
+            match = re.match(route, path)
 
-    def request(self, request_handler, path):
-        token = request_handler.headers.get('Authorization', '')
-        token = token.replace('Bearer ', '')
-        middleware = UserMiddleware.UserMiddleware().check_user_token(token)
-        type_user = middleware.get('type_id')
-
-        match path:
-            case '/users/show':
-
-                content_length = int(request_handler.headers['Content-Length'])
-                body = request_handler.rfile.read(content_length).decode('utf-8')
-                json_data = json.loads(body)
-
-                email = json_data.get('email', '')
-                password = json_data.get('password', '')
-
-                auth =  Controllers.AuthenticationController().login(email, password)
-                request_handler.send_response(200)
-                request_handler.send_header('Content-Type', 'application/json')
-                request_handler.end_headers()
-                request_handler.wfile.write(json.dumps(auth).encode('utf-8'))
-
-            case '/login':
-
-                content_length = int(request_handler.headers['Content-Length'])
-                body = request_handler.rfile.read(content_length).decode('utf-8')
-                json_data = json.loads(body)
-
-                email = json_data.get('email', '')
-                password = json_data.get('password', '')
-
-                auth =  Controllers.AuthenticationController.AuthenticationController().login(email, password)
-                request_handler.send_response(200)
-                request_handler.send_header('Content-Type', 'application/json')
-                request_handler.end_headers()
-                request_handler.wfile.write(json.dumps(auth).encode('utf-8'))
-
-            case '/register':
-
-                content_length = int(request_handler.headers['Content-Length'])
-                body = request_handler.rfile.read(content_length).decode('utf-8')
-                json_data = json.loads(body)
-
-                #add type_id in json_data
-                json_data['type_user'] = type_user
-                json_data['type'] = json_data.get('type', '')
-
-                register = Controllers.AuthenticationController.AuthenticationController().register(json_data)
-                
-                request_handler.send_response(register.get('code'))
-                request_handler.send_header('Content-Type', 'application/json')
-                request_handler.end_headers()
-                request_handler.wfile.write(json.dumps(register).encode('utf-8'))
+            if match:
+                if match.group(0) == None:
+                    return handler()
+                if match.group(1) == None:
+                    return handler(match.group(1))
+            else:
+                return handler()
             
-            case '/schedule':
+        self.send_response(404)
+        self.end_headers()
+        self.wfile.write(b"Not Found")
 
-                if(middleware.get("status") != "success"):
+    def do_POST(self):
+        post_routes = {
+            "/login": self.handle_login,
+            "/register": self.handle_register,
+            "/schedule": self.handle_schedule,
+            "/exams": self.handle_exams,
+        }
 
-                    request_handler.send_response(400)
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
-                
-                else:
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path
 
-                    content_length = int(request_handler.headers['Content-Length'])
-                    body = request_handler.rfile.read(content_length).decode('utf-8')
-                    json_data = json.loads(body)
-                    schedule = Controllers.ScheduleController.ScheduleController().store(json_data)
-                    request_handler.send_response(schedule.get('code'))
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
-            
-            case '/schedule/find':
+        if path in post_routes:
+            post_routes[path]()
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"Not Found")
 
-                if(middleware.get("status") != "success"):
+    def handle_login(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling login..."
+        self.wfile.write(message.encode('utf-8'))
 
-                    request_handler.send_response(400)
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
-                
-                else:
+    # Implemente outros métodos de manipulação aqui...
+    def handle_register(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling register..."
+        self.wfile.write(message.encode('utf-8'))
 
-                    content_length = int(request_handler.headers['Content-Length'])
-                    body = request_handler.rfile.read(content_length).decode('utf-8')
-                    json_data = json.loads(body)
-                    schedule = Controllers.ScheduleController.ScheduleController().find(json_data.get('id'))
-                    request_handler.send_response(schedule.get('code'))
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
- 
-            case '/exams':
+    def handle_schedule(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling schedule..."
+        self.wfile.write(message.encode('utf-8'))
 
-                if(middleware.get("status") != "success"):
+    def handle_schedule_find(self, id):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling schedule find..."
+        self.wfile.write(message.encode('utf-8'))
 
-                    request_handler.send_response(400)
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
-                
-                else:
+    def handle_exams(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling exams..."
+        self.wfile.write(message.encode('utf-8'))
 
-                    content_length = int(request_handler.headers['Content-Length'])
-                    body = request_handler.rfile.read(content_length).decode('utf-8')
-                    json_data = json.loads(body)
-                    schedule = Controllers.ExamsController.ExamsController().store(json_data)
-                    request_handler.send_response(schedule.get('code'))
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
+    def handle_types_all(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling exams All..."
+        self.wfile.write(message.encode('utf-8'))    
 
-            case '/exams/find':
+    def handle_exams_types_find(self, id):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling exams find..."
+        self.wfile.write(message.encode('utf-8'))  
+        
+    def handle_exams_find(self, id):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling exams find..."
+        self.wfile.write(message.encode('utf-8'))    
 
-                if(middleware.get("status") != "success"):
+    def handle_exams_types_all(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        message = "Handling exams types all..."
+        self.wfile.write(message.encode('utf-8'))
 
-                    request_handler.send_response(400)
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
-                
-                else:
-
-                    content_length = int(request_handler.headers['Content-Length'])
-                    body = request_handler.rfile.read(content_length).decode('utf-8')
-                    json_data = json.loads(body)
-                    schedule = Controllers.ExamsController.ExamsController().find(json_data.get('id'))
-                    request_handler.send_response(schedule.get('code'))
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
-
-            case '/exams/types/all':
-
-                if(middleware.get("status") != "success"):
-
-                    request_handler.send_response(400)
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
-                
-                else:
-
-                    content_length = int(request_handler.headers['Content-Length'])
-                    body = request_handler.rfile.read(content_length).decode('utf-8')
-                    json_data = json.loads(body)
-                    schedule = Controllers.ExamsController.ExamsController().findTypeAll()
-                    request_handler.send_response(schedule.get('code'))
-                    request_handler.send_header('Content-Type', 'application/json')
-                    request_handler.end_headers()
-                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
-            case _:
-                request_handler.send_response(404)
-                request_handler.send_header('Content-Type', 'application/json')
-                request_handler.end_headers()
-                request_handler.wfile.write(json.dumps({"status": "error", "message": "Invalid request"}).encode('utf-8'))
+    def log_message(self, format, *args):
+        # Desativa a saída de logs no console para cada solicitação
+        pass
