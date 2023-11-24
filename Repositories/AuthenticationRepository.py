@@ -39,11 +39,13 @@ class AuthenticationRepository(BaseRepository):
 
             type_user = data.get("type_user")
             type_id = data.get("type")
+            
+            if type_user == 1:
+                type_id = data.get("type")
+            elif type_user == 2 or type_user == 3:
+                type_id = 3
 
-            if type_user == 3:
-                return {"status": "error", "message": "Você não tem permissão para realizar esta ação"}
-            else:
-                type_id = data.get("type_id", 3)
+            print("Type User:", type_user, "\n", "Type Id:", type_id)
 
             # Criptografar a senha usando MD5
             hashed_password = hashlib.md5(password.encode()).hexdigest()
