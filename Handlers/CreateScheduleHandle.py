@@ -1,17 +1,20 @@
-import Repositories.AuthenticationRepository as AuthenticationRepository
+import Repositories.ScheduleRepository as ScheduleRepository
 
-class CreateUserHandle:
+class CreateScheduleHandle:
     def Handle(self, data):
         
-        required_fields = ['name', 'email', 'age', 'phoneNumber', 'address', 'password']
+        required_fields = ['date', 'time', 'user_id', 'type_exams']
 
         if any(data.get(field) == '' for field in required_fields):
             return {"status": "error", "code": 400, "message": "All fields are required"}
+        
         else:
-            
-            insert = AuthenticationRepository.AuthenticationRepository().store(data)
+
+            print(data)
+            insert = ScheduleRepository.ScheduleRepository().store(data)
 
             if insert.get('status') == 'success':
                 return {"status": "success", "code": 201, "message": "Register successful"}
             else:
                 return {"status": "error", "code": 400, "message": insert.get('message')}
+

@@ -60,7 +60,7 @@ class AuthenticationRepository(BaseRepository):
             self.cnx.commit()
             self.cursor.close()
 
-            if self.cursor.rowcount:
+            if self.cursor.rowcount > 0:
                 return {"status": "success", "message": "Register successful"}
             else:
                 return {"status": "error", "message": "Register failed"}
