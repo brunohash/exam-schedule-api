@@ -4,7 +4,7 @@ import routes
 
 class APIController(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.routes = routes.Routes(self)
+        self.routes = routes.Routes()
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
