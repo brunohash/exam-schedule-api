@@ -1,10 +1,10 @@
+import Repositories.AuthenticationRepository as AuthenticationRepository
 import os
 import jwt
-import Repositories.AuthenticationRepository as AuthenticationRepository
+
 from datetime import datetime, timedelta
 
-
-class LoginHandle:
+class AuthenticationHandle:
     def Handle(self, email, password):
         auth = AuthenticationRepository.AuthenticationRepository().auth(email, password)
 
