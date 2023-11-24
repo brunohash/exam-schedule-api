@@ -142,6 +142,26 @@ class Routes:
                     request_handler.send_header('Content-Type', 'application/json')
                     request_handler.end_headers()
                     request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
+
+            case '/exams/types/all':
+
+                if(middleware.get("status") != "success"):
+
+                    request_handler.send_response(400)
+                    request_handler.send_header('Content-Type', 'application/json')
+                    request_handler.end_headers()
+                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
+                
+                else:
+
+                    content_length = int(request_handler.headers['Content-Length'])
+                    body = request_handler.rfile.read(content_length).decode('utf-8')
+                    json_data = json.loads(body)
+                    schedule = Controllers.ExamsController.ExamsController().findTypeAll()
+                    request_handler.send_response(schedule.get('code'))
+                    request_handler.send_header('Content-Type', 'application/json')
+                    request_handler.end_headers()
+                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
             case _:
                 request_handler.send_response(404)
                 request_handler.send_header('Content-Type', 'application/json')
