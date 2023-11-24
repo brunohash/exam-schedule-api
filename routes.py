@@ -1,5 +1,6 @@
 import Controllers.AuthenticationController
 import Controllers.ScheduleController
+import Controllers.ExamsController
 import Middleware.UserMiddleware as UserMiddleware
 import json
 
@@ -7,8 +8,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Routes:
-
-    
 
     def request(self, request_handler, path):
         token = request_handler.headers.get('Authorization', '')
@@ -98,12 +97,51 @@ class Routes:
                     content_length = int(request_handler.headers['Content-Length'])
                     body = request_handler.rfile.read(content_length).decode('utf-8')
                     json_data = json.loads(body)
-                    schedule = Controllers.ScheduleController.ScheduleController().find(json_data)
+                    schedule = Controllers.ScheduleController.ScheduleController().find(json_data.get('id'))
                     request_handler.send_response(schedule.get('code'))
                     request_handler.send_header('Content-Type', 'application/json')
                     request_handler.end_headers()
                     request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
  
+            case '/exams':
+
+                if(middleware.get("status") != "success"):
+
+                    request_handler.send_response(400)
+                    request_handler.send_header('Content-Type', 'application/json')
+                    request_handler.end_headers()
+                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
+                
+                else:
+
+                    content_length = int(request_handler.headers['Content-Length'])
+                    body = request_handler.rfile.read(content_length).decode('utf-8')
+                    json_data = json.loads(body)
+                    schedule = Controllers.ExamsController.ExamsController().store(json_data)
+                    request_handler.send_response(schedule.get('code'))
+                    request_handler.send_header('Content-Type', 'application/json')
+                    request_handler.end_headers()
+                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
+
+            case '/exams/find':
+
+                if(middleware.get("status") != "success"):
+
+                    request_handler.send_response(400)
+                    request_handler.send_header('Content-Type', 'application/json')
+                    request_handler.end_headers()
+                    request_handler.wfile.write(json.dumps({"status": "error", "message": middleware.get("message")}).encode('utf-8'))
+                
+                else:
+
+                    content_length = int(request_handler.headers['Content-Length'])
+                    body = request_handler.rfile.read(content_length).decode('utf-8')
+                    json_data = json.loads(body)
+                    schedule = Controllers.ExamsController.ExamsController().find(json_data.get('id'))
+                    request_handler.send_response(schedule.get('code'))
+                    request_handler.send_header('Content-Type', 'application/json')
+                    request_handler.end_headers()
+                    request_handler.wfile.write(json.dumps(schedule).encode('utf-8'))
             case _:
                 request_handler.send_response(404)
                 request_handler.send_header('Content-Type', 'application/json')

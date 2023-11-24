@@ -6,5 +6,6 @@ class ScheduleController:
         return CreateScheduleHandle().Handle(json_data)
     
     def find(self, json_data):
-        return FindAllSchedule().Handler(json_data)
+        print(json_data)
+        return FindAllSchedule().find(json_data)
         

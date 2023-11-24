@@ -1,5 +1,4 @@
 from Repositories.BaseRepository import BaseRepository
-
 class ScheduleRepository(BaseRepository):
 
     def store(self, data):
@@ -19,25 +18,5 @@ class ScheduleRepository(BaseRepository):
         except Exception as e:
             return {"status": "error", "code": 400, "message": str(e)}
             
-    def find(self, id):
-        query = "SELECT schedules.id, schedules.date, schedules.time, schedules.status, \
-        users.name, users.email, exams.name, type_exams.name, type_exams.description \
-        FROM schedules \
-        INNER JOIN users ON schedules.user_id = users.id \
-        INNER JOIN exams ON schedules.exam_id = exams.id \
-        INNER JOIN type_exams ON schedules.exam_id = type_exams.id \
-        WHERE schedules.id = %s"
-
-        values = (id,)
-        
-        result = self.execute(query, values)
-
-        self.cnx.commit()
-        self.cursor.close()
-        
-        if result:
-            return {"status": "success", "code": 200, "data": result}
-        else:
-            return {"status": "error", "code": 404, "message": "Schedule not found"}
-
+    
         
